@@ -5,26 +5,25 @@ import (
 	"net/rpc"
 )
 
-type Item struct {
-	Title string
-	Body  string
+// Todo is the API type
+type Todo struct {
+	Description string
 }
 
 func main() {
-	var reply Item
-	var db []Item
-
 	client, err := rpc.DialHTTP("tcp", "localhost:4040")
 	if err != nil {
 		log.Fatal("Connection error: ", err)
 	}
 
-	a := Item{"First", "Item"}
-	// b := Item{"Second", "Item"}
-	// c := Item{"Third", "Item"}
+	// Add a todo
+	var reply Todo
+	a := Todo{"Do some RPC stuff"}
+	client.Call("API.AddTodo", a, &reply)
 
-	client.Call("API.AddItem", a, &reply)
-	client.Call("API.GetDB", "", &db)
+	// Get All todos back
+	var todos []Todo
+	client.Call("API.GetTodos", "", &todos)
 
-	log.Println(db)
+	log.Println(todos)
 }

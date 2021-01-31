@@ -7,66 +7,30 @@ import (
 	"net/rpc"
 )
 
-type Item struct {
-	Title string
-	Body  string
+// Todo is the API type
+type Todo struct {
+	Description string
 }
 
-type API int
+// The API type to register
+type API struct {
+	todos []Todo
+}
 
-var database []Item
-
-func (a *API) GetDB(nothing string, reply *[]Item) error {
-	*reply = database
+// AddTodo add a Todo to the internal list
+func (a *API) AddTodo(t Todo, reply *Todo) error {
+	a.todos = append(a.todos, t)
+	*reply = t
 	return nil
 }
 
-func (a *API) GetByName(title string, reply *Item) error {
-	var getItem Item
-
-	for _, v := range database {
-		if v.Title == title {
-			getItem = v
-		}
-	}
-
-	*reply = getItem
-	return nil
-}
-
-func (a *API) AddItem(item Item, reply *Item) error {
-	database = append(database, item)
-	*reply = item
-	return nil
-}
-
-func (a *API) EditItem(edit Item, reply *Item) error {
-	var changed Item
-	for id, v := range database {
-		if v.Title == edit.Title {
-			database[id] = Item{edit.Title, edit.Body}
-			changed = database[id]
-		}
-	}
-
-	*reply = changed
-	return nil
-}
-
-func DeleteItem(item Item, reply *Item) error {
-	var deleted Item
-	for id, v := range database {
-		if v.Title == item.Title {
-			database = append(database[:id], database[id+1:]...)
-			deleted = item
-		}
-	}
-	*reply = deleted
+// GetTodos returns all of the Todos
+func (a *API) GetTodos(n string, reply *[]Todo) error {
+	*reply = a.todos
 	return nil
 }
 
 func main() {
-
 	var api = new(API)
 	err := rpc.Register(api)
 
